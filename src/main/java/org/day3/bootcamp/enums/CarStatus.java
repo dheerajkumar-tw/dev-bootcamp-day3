@@ -1,4 +1,4 @@
-package org.day3.bootcamp;
+package org.day3.bootcamp.enums;
 
 public enum CarStatus {
 

@@ -1,39 +1,39 @@
 package org.day3.bootcamp;
 
+import org.day3.bootcamp.enums.CarStatus;
+import org.day3.bootcamp.enums.Flight;
+import org.day3.bootcamp.enums.FlightStatus;
+import org.day3.bootcamp.enums.Role;
+
 public class Person {
-    private CarStatus carStatus;
+    private Car car;
+    private Role personRole;
+    private Flight flight;
 
-    private PersonRole personRole;
-    private FlightStatus flightStatus;
-
-    public Person(CarStatus carStatus, FlightStatus flightStatus, PersonRole personRole) {
-        this.carStatus = carStatus;
-        this.flightStatus = flightStatus;
+    public Person(Car car, Flight flight, Role personRole) {
+        this.car = car;
         this.personRole = personRole;
+        this.flight = flight;
     }
 
     public boolean parkTheCar(Parking parking){
 
-        if(this.personRole != PersonRole.DRIVER) return false;
+        if(this.personRole != Role.DRIVER) return false;
 
-        if(this.carStatus == CarStatus.PARKED) return true;
+        if(this.car.getCarStatus() == CarStatus.PARKED) return true;
 
         if(parking.bookParkingSlot()){
-            carStatus = CarStatus.PARKED;
-            flightStatus = FlightStatus.CATCHED;
+            car.setCarStatus(CarStatus.PARKED);
+            flight.setFlightStatus(FlightStatus.BOARDED);
             return true;
         }
-        carStatus = CarStatus.NOT_PARKED;
-        flightStatus = FlightStatus.MISSED;
+        car.setCarStatus(CarStatus.NOT_PARKED);
+        flight.setFlightStatus(FlightStatus.MISSED);
         return false;
     }
 
     public FlightStatus getFlightStatus(){
-        return flightStatus;
-    }
-
-    public CarStatus getCarStatus() {
-        return carStatus;
+        return flight.getFlightStatus();
     }
 
 }
