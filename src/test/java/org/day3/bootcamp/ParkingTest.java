@@ -3,6 +3,7 @@ package org.day3.bootcamp;
 import org.day3.bootcamp.exceptions.NoParkingSlotAvailableException;
 import org.day3.bootcamp.exceptions.NoSuchVehicleParkedException;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,4 +78,39 @@ public class ParkingTest {
         assertThrows(NoSuchVehicleParkedException.class, () -> parkingLot.unparkVehicle(car));
     }
 
+    @Test
+    public void should_notify_owner_and_trafficCop_when_parking_is_Full() throws NoParkingSlotAvailableException {
+
+        Car car = new Car();
+
+        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
+        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
+        ParkingLot parkingLot = new ParkingLot(1);
+
+        parkingLot.associateObserver(trafficCop);
+        parkingLot.associateObserver(parkingOwner);
+
+        parkingLot.parkVehicle(car);
+
+        Mockito.verify(parkingOwner, Mockito.times(1)).parkingFull();
+        Mockito.verify(trafficCop, Mockito.times(1)).parkingFull();
+    }
+
+    @Test
+    public void should__not_notify_owner_and_trafficCop_when_parking_is_not_Full() throws NoParkingSlotAvailableException {
+
+        Car car = new Car();
+
+        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
+        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
+        ParkingLot parkingLot = new ParkingLot(2);
+
+        parkingLot.associateObserver(trafficCop);
+        parkingLot.associateObserver(parkingOwner);
+
+        parkingLot.parkVehicle(car);
+
+        Mockito.verify(parkingOwner, Mockito.times(0)).parkingFull();
+        Mockito.verify(trafficCop, Mockito.times(0)).parkingFull();
+    }
 }
