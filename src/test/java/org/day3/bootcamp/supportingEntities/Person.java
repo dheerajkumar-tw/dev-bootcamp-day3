@@ -1,9 +1,9 @@
-package org.day3.bootcamp;
+package org.day3.bootcamp.supportingEntities;
 
-import org.day3.bootcamp.enums.CarStatus;
-import org.day3.bootcamp.enums.Flight;
-import org.day3.bootcamp.enums.FlightStatus;
-import org.day3.bootcamp.enums.Role;
+import org.day3.bootcamp.Parking;
+import org.day3.bootcamp.supportingEntities.enums.CarStatus;
+import org.day3.bootcamp.supportingEntities.enums.FlightStatus;
+import org.day3.bootcamp.supportingEntities.enums.Role;
 
 public class Person {
     private Car car;

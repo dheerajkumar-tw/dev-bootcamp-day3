@@ -1,8 +1,10 @@
 package org.day3.bootcamp;
 
-import org.day3.bootcamp.enums.Flight;
-import org.day3.bootcamp.enums.FlightStatus;
-import org.day3.bootcamp.enums.Role;
+import org.day3.bootcamp.supportingEntities.Flight;
+import org.day3.bootcamp.supportingEntities.enums.FlightStatus;
+import org.day3.bootcamp.supportingEntities.enums.Role;
+import org.day3.bootcamp.supportingEntities.Car;
+import org.day3.bootcamp.supportingEntities.Person;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

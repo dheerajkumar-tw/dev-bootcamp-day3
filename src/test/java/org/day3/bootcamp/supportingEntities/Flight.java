@@ -1,4 +1,6 @@
-package org.day3.bootcamp.enums;
+package org.day3.bootcamp.supportingEntities;
+
+import org.day3.bootcamp.supportingEntities.enums.FlightStatus;
 
 public class Flight {
     private FlightStatus flightStatus;

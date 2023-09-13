@@ -1,4 +1,4 @@
-package org.day3.bootcamp.enums;
+package org.day3.bootcamp.supportingEntities.enums;
 
 public enum FlightStatus {
 
