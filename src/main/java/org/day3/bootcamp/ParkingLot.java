@@ -31,7 +31,7 @@ public class ParkingLot {
         if(availableSlots>0){
             parkedVehicles.add(parkableObject);
             availableSlots = availableSlots-1;
-            notifyIfParkingIsFull(availableSlots);
+            updateParkingStatus(availableSlots);
             return;
         }
         throw new NoParkingSlotAvailableException();
@@ -42,7 +42,7 @@ public class ParkingLot {
         if(parkedVehicles.contains(parkableObject)){
             parkedVehicles.remove(parkableObject);
             availableSlots++;
-            notifyIfParkingIsFull(availableSlots);
+            updateParkingStatus(availableSlots);
             return true;
         }
         throw new NoSuchVehicleParkedException();
@@ -53,19 +53,25 @@ public class ParkingLot {
         return parkedVehicles.contains(parkableObject);
     }
 
-    private void notifyIfParkingIsFull(Integer availableSlots){
+    private void updateParkingStatus(Integer availableSlots){
         if(availableSlots==0){
+            parkingFull = true;
             notifyAllObserverThatParkingIsFull();
             return;
         }
 
         if(parkingFull && availableSlots>0){
-            //TODO: Put some messgae in MQ, to send notification for Full Parking
+            //TODO: Put some message in MQ, to send notification for Full Parking
             parkingFull =false;
+            notifyAllObserverThatParkingIsAvailable();
         }
     }
 
     public void notifyAllObserverThatParkingIsFull(){
-        parkingLotObserverList.forEach(ParkingLotObserver::parkingFull);
+        parkingLotObserverList.forEach(observer -> observer.updateParkingStatus(true));
+    }
+
+    public void notifyAllObserverThatParkingIsAvailable(){
+        parkingLotObserverList.forEach(observer -> observer.updateParkingStatus(false));
     }
 }
