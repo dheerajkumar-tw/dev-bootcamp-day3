@@ -1,29 +1,23 @@
 package org.day3.bootcamp;
 
+import org.day3.bootcamp.enums.EventType;
 import org.day3.bootcamp.exceptions.NoParkingSlotAvailableException;
 import org.day3.bootcamp.exceptions.NoSuchVehicleParkedException;
 import org.day3.bootcamp.markerInterface.Parkable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public class ParkingLot {
 
     private Integer availableSlots;
     private final HashSet<Parkable> parkedVehicles = new HashSet<>();
+    private Boolean isParkingFull;
+    private NotificationSystem notificationSystem;
 
-    private List<ParkingLotObserver> parkingLotObserverList = new ArrayList<>();
-
-    private Boolean parkingFull;
-
-    public ParkingLot(Integer availableSlots) {
+    public ParkingLot(Integer availableSlots, NotificationSystem notificationSystem) {
         this.availableSlots = availableSlots;
-        this.parkingFull = false;
-    }
-
-    public void associateObserver(ParkingLotObserver parkingLotObserver){
-        parkingLotObserverList.add(parkingLotObserver);
+        this.isParkingFull = false;
+        this.notificationSystem = notificationSystem;
     }
 
     public void parkVehicle(Parkable parkableObject) throws NoParkingSlotAvailableException {
@@ -55,23 +49,17 @@ public class ParkingLot {
 
     private void updateParkingStatus(Integer availableSlots){
         if(availableSlots==0){
-            parkingFull = true;
-            notifyAllObserverThatParkingIsFull();
+            isParkingFull = true;
+            notificationSystem.notifyObservers(EventType.PARKING_IS_FULL);
             return;
         }
-
-        if(parkingFull && availableSlots>0){
-            //TODO: Put some message in MQ, to send notification for Full Parking
-            parkingFull =false;
-            notifyAllObserverThatParkingIsAvailable();
+        if(isParkingFull && availableSlots>0){
+            isParkingFull =false;
+            notificationSystem.notifyObservers(EventType.PARKING_IS_AVAILABLE);
         }
     }
 
-    public void notifyAllObserverThatParkingIsFull(){
-        parkingLotObserverList.forEach(observer -> observer.updateParkingStatus(true));
-    }
-
-    public void notifyAllObserverThatParkingIsAvailable(){
-        parkingLotObserverList.forEach(observer -> observer.updateParkingStatus(false));
+    public boolean isParkingFull(){
+        return isParkingFull;
     }
 }

@@ -1,5 +1,6 @@
 package org.day3.bootcamp;
 
+import org.day3.bootcamp.enums.EventType;
 import org.day3.bootcamp.exceptions.NoParkingSlotAvailableException;
 import org.day3.bootcamp.exceptions.NoSuchVehicleParkedException;
 import org.day3.bootcamp.supportingEntities.ParkingOwner;
@@ -11,10 +12,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ParkingTest {
 
+    NotificationSystem notificationSystem = new NotificationSystemImpl();
+    TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
+    ParkingOwner owner  =Mockito.mock(ParkingOwner.class);
+
+    {
+        notificationSystem.subscribe(trafficCop);
+        notificationSystem.subscribe(owner);
+    }
+
     @Test
     public void shouldAbleToParkVehicleIfParkingSlotAvailable() throws NoParkingSlotAvailableException {
+
         Car car1 = new Car();
-        ParkingLot parkingLot = new ParkingLot(1);
+
+        ParkingLot parkingLot = new ParkingLot(1, notificationSystem);
         parkingLot.parkVehicle(car1);
         assertTrue(parkingLot.checkVehicleParkingStatus(car1));
     }
@@ -24,7 +36,7 @@ public class ParkingTest {
 
         Car car1 = new Car();
         Car car2= new Car();
-        ParkingLot parkingLot = new ParkingLot(1);
+        ParkingLot parkingLot = new ParkingLot(1, notificationSystem);
         parkingLot.parkVehicle(car1);
         assertThrows(NoParkingSlotAvailableException.class,  () -> parkingLot.parkVehicle(car2));
     }
@@ -33,7 +45,7 @@ public class ParkingTest {
     public void shouldAbleToParkMultipleVehiclesIfParkingSlotsAvailable() throws NoParkingSlotAvailableException {
         Car car1 = new Car();
         Car car2 = new Car();
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
         parkingLot.parkVehicle(car1);
         parkingLot.parkVehicle(car2);
         assertTrue(parkingLot.checkVehicleParkingStatus(car2));
@@ -43,7 +55,7 @@ public class ParkingTest {
     public void shouldReturnTrueIfVehicleIsParkedInParkingLot() throws NoParkingSlotAvailableException {
 
         Car car = new Car();
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
         parkingLot.parkVehicle(car);
 
         assertTrue(parkingLot.checkVehicleParkingStatus(car));
@@ -55,7 +67,7 @@ public class ParkingTest {
         Car car1 = new Car();
         Car car2 = new Car();
 
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
         parkingLot.parkVehicle(car1);
 
         assertFalse(parkingLot.checkVehicleParkingStatus(car2));
@@ -65,7 +77,7 @@ public class ParkingTest {
     public void shouldAbleToUnparkTheVehicleIfParked() throws NoSuchVehicleParkedException, NoParkingSlotAvailableException {
 
         Car car = new Car();
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
         parkingLot.parkVehicle(car);
 
         assertTrue(parkingLot.unparkVehicle(car));
@@ -75,7 +87,7 @@ public class ParkingTest {
     public void shouldThrowExceptionWhileUnparkTheVehicleIfNotParked() {
 
         Car car = new Car();
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
 
         assertThrows(NoSuchVehicleParkedException.class, () -> parkingLot.unparkVehicle(car));
     }
@@ -84,36 +96,26 @@ public class ParkingTest {
     public void should_notify_owner_and_trafficCop_when_parkingLot_is_Full() throws NoParkingSlotAvailableException {
 
         Car car = new Car();
+        ParkingLot parkingLot = new ParkingLot(1, notificationSystem);
 
-        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
-        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
-        ParkingLot parkingLot = new ParkingLot(1);
 
-        parkingLot.associateObserver(trafficCop);
-        parkingLot.associateObserver(parkingOwner);
 
         parkingLot.parkVehicle(car);
 
-        Mockito.verify(parkingOwner, Mockito.times(1)).updateParkingStatus(true);
-        Mockito.verify(trafficCop, Mockito.times(1)).updateParkingStatus(true);
+        Mockito.verify(owner, Mockito.times(1)).notify(EventType.PARKING_IS_FULL);
+        Mockito.verify(trafficCop, Mockito.times(1)).notify(EventType.PARKING_IS_FULL);
     }
 
     @Test
-    public void should__not_notify_owner_and_trafficCop_when_parkingLot_is_not_Full() throws NoParkingSlotAvailableException {
+    public void should_not_notify_owner_and_trafficCop_when_parkingLot_is_not_Full() throws NoParkingSlotAvailableException {
 
         Car car = new Car();
 
-        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
-        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
-        ParkingLot parkingLot = new ParkingLot(2);
-
-        parkingLot.associateObserver(trafficCop);
-        parkingLot.associateObserver(parkingOwner);
-
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
         parkingLot.parkVehicle(car);
 
-        Mockito.verify(parkingOwner, Mockito.times(0)).updateParkingStatus(true);
-        Mockito.verify(trafficCop, Mockito.times(0)).updateParkingStatus(true);
+        Mockito.verify(owner, Mockito.times(0)).notify(EventType.PARKING_IS_FULL);
+        Mockito.verify(trafficCop, Mockito.times(0)).notify(EventType.PARKING_IS_FULL);
     }
 
     @Test
@@ -121,19 +123,15 @@ public class ParkingTest {
 
         Car car = new Car();
 
-        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
-        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
-        ParkingLot parkingLot = new ParkingLot(1);
 
-        parkingLot.associateObserver(trafficCop);
-        parkingLot.associateObserver(parkingOwner);
+        ParkingLot parkingLot = new ParkingLot(1, notificationSystem);
 
         parkingLot.parkVehicle(car);
 
         parkingLot.unparkVehicle(car);
 
-        Mockito.verify(parkingOwner, Mockito.times(1)).updateParkingStatus(false);
-        Mockito.verify(trafficCop, Mockito.times(1)).updateParkingStatus(false);
+        Mockito.verify(owner, Mockito.times(1)).notify(EventType.PARKING_IS_AVAILABLE);
+        Mockito.verify(trafficCop, Mockito.times(1)).notify(EventType.PARKING_IS_AVAILABLE);
     }
 
     @Test
@@ -142,12 +140,8 @@ public class ParkingTest {
         Car car1 = new Car();
         Car car2= new Car();
 
-        ParkingOwner parkingOwner = Mockito.mock(ParkingOwner.class);
-        TrafficCop trafficCop = Mockito.mock(TrafficCop.class);
-        ParkingLot parkingLot = new ParkingLot(2);
 
-        parkingLot.associateObserver(trafficCop);
-        parkingLot.associateObserver(parkingOwner);
+        ParkingLot parkingLot = new ParkingLot(2, notificationSystem);
 
         parkingLot.parkVehicle(car1);
         parkingLot.parkVehicle(car2);
@@ -156,7 +150,7 @@ public class ParkingTest {
 
         parkingLot.unparkVehicle(car2);
 
-        Mockito.verify(parkingOwner, Mockito.times(1)).updateParkingStatus(false);
-        Mockito.verify(trafficCop, Mockito.times(1)).updateParkingStatus(false);
+        Mockito.verify(owner, Mockito.times(1)).notify(EventType.PARKING_IS_AVAILABLE);
+        Mockito.verify(trafficCop, Mockito.times(1)).notify(EventType.PARKING_IS_AVAILABLE);
     }
 }
